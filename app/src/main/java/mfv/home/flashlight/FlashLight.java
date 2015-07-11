@@ -14,7 +14,7 @@ import mfv.home.flashlight.Exceptions.CameraBusyException;
 public class FlashLight
 {
 
-	public static final String CAMERA_TAG = "cameraTag";
+	public static final String FLASH_TAG = "flash";
 	private boolean isSupport = false;
 
 	private Camera camera;
@@ -44,11 +44,11 @@ public class FlashLight
 			}
 			catch(IOException e)
 			{
-				Log.d(CAMERA_TAG, "reconnect failed");
+				Log.d(FLASH_TAG, "reconnect failed");
 			}
 			parameters = camera.getParameters();
 
-			Log.d(CAMERA_TAG, "camera open");
+			Log.d(FLASH_TAG, "camera open");
 		}
 	}
 
@@ -58,7 +58,7 @@ public class FlashLight
 		{
 			camera.release();
 
-			Log.d(CAMERA_TAG, "camera release");
+			Log.d(FLASH_TAG, "camera release");
 		}
 	}
 
@@ -70,7 +70,7 @@ public class FlashLight
 			camera.setParameters(parameters);
 			camera.startPreview();
 
-			Log.d(CAMERA_TAG, "turn on");
+			Log.d(FLASH_TAG, "turn on");
 		}
 	}
 
@@ -81,7 +81,7 @@ public class FlashLight
 			parameters.setFlashMode(Camera.Parameters.FLASH_MODE_OFF);
 			camera.setParameters(parameters);
 
-			Log.d(CAMERA_TAG, "turn off");
+			Log.d(FLASH_TAG, "turn off");
 		}
 	}
 
@@ -114,7 +114,7 @@ public class FlashLight
 			{
 				if(isSupport() && holder != null)
 				{
-					Log.d(CAMERA_TAG, "surface created");
+					Log.d(FLASH_TAG, "surface created");
 					holder.setFixedSize(0, 0);
 					camera.setPreviewDisplay(holder);
 				}
@@ -128,7 +128,7 @@ public class FlashLight
 		@Override
 		public void surfaceChanged(SurfaceHolder holder, int format, int width, int height)
 		{
-			Log.d(CAMERA_TAG, "surface changed");
+			Log.d(FLASH_TAG, "surface changed");
 		}
 
 		@Override
@@ -136,7 +136,7 @@ public class FlashLight
 		{
 			if(isSupport())
 			{
-				Log.d(CAMERA_TAG, "surface destroyed");
+				Log.d(FLASH_TAG, "surface destroyed");
 				camera.stopPreview();
 			}
 		}

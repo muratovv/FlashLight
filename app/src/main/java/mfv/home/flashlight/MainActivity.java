@@ -1,6 +1,7 @@
 package mfv.home.flashlight;
 
 import android.app.Activity;
+import android.media.MediaPlayer;
 import android.os.Bundle;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
@@ -14,9 +15,9 @@ import mfv.home.flashlight.Exceptions.CameraBusyException;
 public class MainActivity extends Activity
 {
 
-	private TextView statusView;
-
 	private boolean isOn;
+
+	private TextView statusView;
 	private FlashLight flashLight;
 	private SurfaceView preview;
 
@@ -25,7 +26,10 @@ public class MainActivity extends Activity
 	{
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_main);
+
 		Button turnButton = ((Button) findViewById(R.id.turnButton));
+		turnButton.setSoundEffectsEnabled(false);
+
 		statusView = ((TextView) findViewById(R.id.statusField));
 		turnButton.setOnClickListener(new View.OnClickListener()
 		{
@@ -36,9 +40,7 @@ public class MainActivity extends Activity
 			}
 		});
 		preview = ((SurfaceView) findViewById(R.id.surface));
-
 	}
-
 
 
 	@Override
@@ -46,7 +48,7 @@ public class MainActivity extends Activity
 	{
 		super.onStop();
 		if(flashLight != null)
-		flashLight.releaseCamera();
+			flashLight.releaseCamera();
 	}
 
 	@Override
@@ -60,40 +62,47 @@ public class MainActivity extends Activity
 	protected void onResume()
 	{
 		super.onResume();
-		try
+		if(flashLight == null)
 		{
-			SurfaceHolder holder = preview.getHolder();
-			flashLight = new FlashLight(getApplicationContext(), holder);
-		}
-		catch(CameraBusyException e)
-		{
-			statusView.setText("Flashlight already used in another app");
+			try
+			{
+				SurfaceHolder holder = preview.getHolder();
+				flashLight = new FlashLight(getApplicationContext(), holder);
+			}
+			catch(CameraBusyException e)
+			{
+				statusView.setText("Flashlight already used in another app or not supported");
+			}
 		}
 		if(flashLight != null)
-		flashLight.openCamera();
+			flashLight.openCamera();
+	}
+
+	private void playSound(int rawId)
+	{
+		MediaPlayer player = MediaPlayer.create(this, rawId);
+		player.start();
 	}
 
 	private void turnNext()
 	{
 		if(flashLight != null)
-		if(flashLight.isSupport())
-		{
-			if(isOn)
+			if(flashLight.isSupport())
 			{
-				statusView.setText("Flash turnNext off");
-				flashLight.turnOff();
-				isOn = false;
+				if(isOn)
+				{
+					statusView.setText("Flash turnNext off");
+					flashLight.turnOff();
+					playSound(R.raw.turn_on);
+					isOn = false;
+				}
+				else
+				{
+					statusView.setText("Flash turnNext on");
+					flashLight.turnOn();
+					playSound(R.raw.turn_off);
+					isOn = true;
+				}
 			}
-			else
-			{
-				statusView.setText("Flash turnNext on");
-				flashLight.turnOn();
-				isOn = true;
-			}
-		}
-		else
-		{
-			statusView.setText("Camera not supported");
-		}
 	}
 }
