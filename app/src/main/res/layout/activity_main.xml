@@ -9,6 +9,12 @@
                 android:paddingTop="@dimen/activity_vertical_margin"
                 tools:context=".MainActivity">
 
+    <TextView
+        android:id="@+id/statusField"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        />
+
     <Button
         android:id="@+id/turnButton"
         android:layout_width="match_parent"
@@ -16,15 +22,10 @@
         android:text="@string/turn"
         />
 
-    <TextView
-        android:id="@+id/statusField"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        />
 
     <SurfaceView
         android:id="@+id/surface"
-        android:layout_width="match_parent"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"/>
 
 </LinearLayout>
