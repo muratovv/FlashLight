@@ -9,17 +9,18 @@ import android.view.SurfaceHolder;
 import java.io.IOException;
 
 
-public class FlashLight implements SurfaceHolder.Callback
+public class FlashLight
 {
 
 	public static final String CAMERA_TAG = "cameraTag";
-	private boolean isSupport;
-	private boolean isCatced;
+	private boolean isSupport = false;
+
 	private Camera camera;
 	private Camera.Parameters parameters;
 
-	public FlashLight(Context context)
+	public FlashLight(Context context, SurfaceHolder holder)
 	{
+		holder.addCallback(new HolderHelper());
 		checkSupportCamera(context);
 	}
 
@@ -30,37 +31,15 @@ public class FlashLight implements SurfaceHolder.Callback
 				.contains(Camera.Parameters.FLASH_MODE_TORCH);
 	}
 
-	private void checkSupportCamera(Context context)
-	{
-		isSupport = context.getPackageManager()
-				.hasSystemFeature(PackageManager.FEATURE_CAMERA_FLASH);
-	}
-
-	@Deprecated
-	private void debug()
-	{
-		for(String s : camera.getParameters().getSupportedFlashModes())
-		{
-			Log.d(CAMERA_TAG, s);
-		}
-
-		Log.d(CAMERA_TAG, camera.getParameters().getFocusMode());
-		for(String s : camera.getParameters().getSupportedFocusModes())
-		{
-			Log.d(CAMERA_TAG, s);
-		}
-
-
-	}
 
 	public void openCamera()
 	{
-		if(camera == null && isSupport && !isCatced)
+		if(camera == null && isSupport)
 		{
 			camera = Camera.open();
 			parameters = camera.getParameters();
-			isCatced = true;
-			debug();
+
+			Log.d(CAMERA_TAG, "camera open");
 		}
 	}
 
@@ -70,6 +49,8 @@ public class FlashLight implements SurfaceHolder.Callback
 		{
 			camera.release();
 			camera = null;
+
+			Log.d(CAMERA_TAG, "camera release");
 		}
 	}
 
@@ -80,6 +61,8 @@ public class FlashLight implements SurfaceHolder.Callback
 			parameters.setFlashMode(Camera.Parameters.FLASH_MODE_TORCH);
 			camera.setParameters(parameters);
 			camera.startPreview();
+
+			Log.d(CAMERA_TAG, "turn on");
 		}
 	}
 
@@ -89,42 +72,52 @@ public class FlashLight implements SurfaceHolder.Callback
 		{
 			parameters.setFlashMode(Camera.Parameters.FLASH_MODE_OFF);
 			camera.setParameters(parameters);
-			camera.stopPreview();
+
+			Log.d(CAMERA_TAG, "turn off");
 		}
 	}
 
-
-	@Override
-	public void surfaceCreated(SurfaceHolder holder)
+	private void checkSupportCamera(Context context)
 	{
-		try
+		isSupport = context.getPackageManager()
+				.hasSystemFeature(PackageManager.FEATURE_CAMERA_FLASH);
+	}
+
+
+	private class HolderHelper implements SurfaceHolder.Callback
+	{
+		@Override
+		public void surfaceCreated(SurfaceHolder holder)
 		{
-			if(isSupport() && holder != null)
+			try
 			{
-				Log.d(CAMERA_TAG, "surface created");
-				holder.setFixedSize(0, 0);
-				camera.setPreviewDisplay(holder);
+				if(isSupport() && holder != null)
+				{
+					Log.d(CAMERA_TAG, "surface created");
+					holder.setFixedSize(0, 0);
+					camera.setPreviewDisplay(holder);
+				}
+			}
+			catch(IOException e)
+			{
+				e.printStackTrace();
 			}
 		}
-		catch(IOException e)
+
+		@Override
+		public void surfaceChanged(SurfaceHolder holder, int format, int width, int height)
 		{
-			e.printStackTrace();
+			Log.d(CAMERA_TAG, "surface changed");
 		}
-	}
 
-	@Override
-	public void surfaceChanged(SurfaceHolder holder, int format, int width, int height)
-	{
-		Log.d(CAMERA_TAG, "surface changed");
-	}
-
-	@Override
-	public void surfaceDestroyed(SurfaceHolder holder)
-	{
-		if(isSupport())
+		@Override
+		public void surfaceDestroyed(SurfaceHolder holder)
 		{
-			Log.d(CAMERA_TAG, "surface destroyed");
-			camera.stopPreview();
+			if(isSupport())
+			{
+				Log.d(CAMERA_TAG, "surface destroyed");
+				camera.stopPreview();
+			}
 		}
 	}
 }

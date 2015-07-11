@@ -34,15 +34,14 @@ public class MainActivity extends Activity
 		});
 		SurfaceView preview = ((SurfaceView) findViewById(R.id.surface));
 		SurfaceHolder holder = preview.getHolder();
-		flashLight = new FlashLight(getApplicationContext());
-		holder.addCallback(flashLight);
-		preview.setVisibility(View.VISIBLE);
+		flashLight = new FlashLight(getApplicationContext(), holder);
 	}
+
 
 	@Override
 	protected void onPause()
 	{
-		super.onPause();
+		super.onStop();
 		flashLight.releaseCamera();
 	}
 
