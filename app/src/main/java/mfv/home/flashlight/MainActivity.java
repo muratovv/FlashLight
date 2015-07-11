@@ -8,6 +8,8 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
 
+import mfv.home.flashlight.Exceptions.CameraBusyException;
+
 
 public class MainActivity extends Activity
 {
@@ -16,6 +18,7 @@ public class MainActivity extends Activity
 
 	private boolean isOn;
 	private FlashLight flashLight;
+	private SurfaceView preview;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState)
@@ -32,28 +35,47 @@ public class MainActivity extends Activity
 				turnNext();
 			}
 		});
-		SurfaceView preview = ((SurfaceView) findViewById(R.id.surface));
-		SurfaceHolder holder = preview.getHolder();
-		flashLight = new FlashLight(getApplicationContext(), holder);
+		preview = ((SurfaceView) findViewById(R.id.surface));
+
 	}
 
+
+
+	@Override
+	protected void onDestroy()
+	{
+		super.onStop();
+		if(flashLight != null)
+		flashLight.releaseCamera();
+	}
 
 	@Override
 	protected void onPause()
 	{
-		super.onStop();
-		flashLight.releaseCamera();
+		super.onPause();
+		statusView.setText("");
 	}
 
 	@Override
 	protected void onResume()
 	{
 		super.onResume();
+		try
+		{
+			SurfaceHolder holder = preview.getHolder();
+			flashLight = new FlashLight(getApplicationContext(), holder);
+		}
+		catch(CameraBusyException e)
+		{
+			statusView.setText("Flashlight already used in another app");
+		}
+		if(flashLight != null)
 		flashLight.openCamera();
 	}
 
 	private void turnNext()
 	{
+		if(flashLight != null)
 		if(flashLight.isSupport())
 		{
 			if(isOn)

@@ -8,6 +8,8 @@ import android.view.SurfaceHolder;
 
 import java.io.IOException;
 
+import mfv.home.flashlight.Exceptions.CameraBusyException;
+
 
 public class FlashLight
 {
@@ -18,15 +20,15 @@ public class FlashLight
 	private Camera camera;
 	private Camera.Parameters parameters;
 
-	public FlashLight(Context context, SurfaceHolder holder)
+	public FlashLight(Context context, SurfaceHolder holder) throws CameraBusyException
 	{
 		holder.addCallback(new HolderHelper());
-		checkSupportCamera(context);
+		prepareCamera(context);
 	}
 
 	public boolean isSupport()
 	{
-		return isSupport && camera != null
+		return isSupport
 				&& parameters.getSupportedFlashModes()
 				.contains(Camera.Parameters.FLASH_MODE_TORCH);
 	}
@@ -34,9 +36,16 @@ public class FlashLight
 
 	public void openCamera()
 	{
-		if(camera == null && isSupport)
+		if(isSupport())
 		{
-			camera = Camera.open();
+			try
+			{
+				camera.reconnect();
+			}
+			catch(IOException e)
+			{
+				Log.d(CAMERA_TAG, "reconnect failed");
+			}
 			parameters = camera.getParameters();
 
 			Log.d(CAMERA_TAG, "camera open");
@@ -48,7 +57,6 @@ public class FlashLight
 		if(camera != null)
 		{
 			camera.release();
-			camera = null;
 
 			Log.d(CAMERA_TAG, "camera release");
 		}
@@ -77,10 +85,23 @@ public class FlashLight
 		}
 	}
 
-	private void checkSupportCamera(Context context)
+	private void prepareCamera(Context context) throws CameraBusyException
 	{
-		isSupport = context.getPackageManager()
-				.hasSystemFeature(PackageManager.FEATURE_CAMERA_FLASH);
+		if(context.getPackageManager()
+				.hasSystemFeature(PackageManager.FEATURE_CAMERA_FLASH))
+		{
+			try
+			{
+				camera = Camera.open();
+				parameters = camera.getParameters();
+				isSupport = parameters.getSupportedFlashModes()
+						.contains(Camera.Parameters.FLASH_MODE_TORCH);
+			}
+			catch(Exception e)
+			{
+				throw new CameraBusyException();
+			}
+		}
 	}
 
 
