@@ -3,13 +3,10 @@ package mfv.home.flashlight;
 import android.app.Activity;
 import android.media.MediaPlayer;
 import android.os.Bundle;
-import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
-
-import mfv.home.flashlight.Exceptions.CameraBusyException;
 
 
 public class MainActivity extends Activity
@@ -40,6 +37,7 @@ public class MainActivity extends Activity
 			}
 		});
 		preview = ((SurfaceView) findViewById(R.id.surface));
+		flashLight = new FlashLight(preview.getHolder());
 	}
 
 
@@ -47,8 +45,6 @@ public class MainActivity extends Activity
 	protected void onDestroy()
 	{
 		super.onStop();
-		if(flashLight != null)
-			flashLight.releaseCamera();
 	}
 
 	@Override
@@ -56,26 +52,17 @@ public class MainActivity extends Activity
 	{
 		super.onPause();
 		statusView.setText("");
+		if(flashLight != null && !flashLight.isUsed())
+		{
+			flashLight.releaseCamera();
+		}
 	}
 
 	@Override
 	protected void onResume()
 	{
 		super.onResume();
-		if(flashLight == null)
-		{
-			try
-			{
-				SurfaceHolder holder = preview.getHolder();
-				flashLight = new FlashLight(getApplicationContext(), holder);
-			}
-			catch(CameraBusyException e)
-			{
-				statusView.setText("Flashlight already used in another app or not supported");
-			}
-		}
-		if(flashLight != null)
-			flashLight.openCamera();
+		flashLight.openCamera();
 	}
 
 	private void playSound(int rawId)

@@ -1,7 +1,5 @@
 package mfv.home.flashlight;
 
-import android.content.Context;
-import android.content.pm.PackageManager;
 import android.hardware.Camera;
 import android.util.Log;
 import android.view.SurfaceHolder;
@@ -15,51 +13,68 @@ public class FlashLight
 {
 
 	public static final String FLASH_TAG = "flash";
+
+	private boolean isUsed = false;
 	private boolean isSupport = false;
 
-	private Camera camera;
 	private Camera.Parameters parameters;
+	private Camera camera;
+	private SurfaceHolder holder;
+	private HolderHelper holderHelper;
 
-	public FlashLight(Context context, SurfaceHolder holder) throws CameraBusyException
+	public FlashLight(SurfaceHolder holder) throws CameraBusyException
 	{
-		holder.addCallback(new HolderHelper());
-		prepareCamera(context);
+		this.holder = holder;
+	}
+
+	public boolean isUsed()
+	{
+		return isUsed;
 	}
 
 	public boolean isSupport()
 	{
-		return isSupport
-				&& parameters.getSupportedFlashModes()
-				.contains(Camera.Parameters.FLASH_MODE_TORCH);
+		return isSupport;
 	}
-
 
 	public void openCamera()
 	{
-		if(isSupport())
+		if(camera == null)
 		{
 			try
 			{
-				camera.reconnect();
+				holderHelper = new HolderHelper();
+				holder.addCallback(holderHelper);
+				camera = Camera.open();
+				parameters = camera.getParameters();
+				isSupport = parameters
+						.getSupportedFlashModes()
+						.contains(Camera.Parameters.FLASH_MODE_TORCH);
+				camera.setPreviewDisplay(holder);
 			}
 			catch(IOException e)
 			{
-				Log.d(FLASH_TAG, "reconnect failed");
+				e.printStackTrace();
 			}
-			parameters = camera.getParameters();
-
-			Log.d(FLASH_TAG, "camera open");
 		}
 	}
 
 	public void releaseCamera()
 	{
-		if(camera != null)
+		try
 		{
+			holder.removeCallback(holderHelper);
+			camera.setPreviewDisplay(null);
 			camera.release();
-
-			Log.d(FLASH_TAG, "camera release");
 		}
+		catch(IOException e)
+		{
+			e.printStackTrace();
+		}
+		holderHelper = null;
+		camera = null;
+		isSupport = false;
+		isUsed = false;
 	}
 
 	public void turnOn()
@@ -69,7 +84,7 @@ public class FlashLight
 			parameters.setFlashMode(Camera.Parameters.FLASH_MODE_TORCH);
 			camera.setParameters(parameters);
 			camera.startPreview();
-
+			isUsed = true;
 			Log.d(FLASH_TAG, "turn on");
 		}
 	}
@@ -80,27 +95,9 @@ public class FlashLight
 		{
 			parameters.setFlashMode(Camera.Parameters.FLASH_MODE_OFF);
 			camera.setParameters(parameters);
-
+			camera.stopPreview();
+			isUsed = false;
 			Log.d(FLASH_TAG, "turn off");
-		}
-	}
-
-	private void prepareCamera(Context context) throws CameraBusyException
-	{
-		if(context.getPackageManager()
-				.hasSystemFeature(PackageManager.FEATURE_CAMERA_FLASH))
-		{
-			try
-			{
-				camera = Camera.open();
-				parameters = camera.getParameters();
-				isSupport = parameters.getSupportedFlashModes()
-						.contains(Camera.Parameters.FLASH_MODE_TORCH);
-			}
-			catch(Exception e)
-			{
-				throw new CameraBusyException();
-			}
 		}
 	}
 
@@ -112,11 +109,12 @@ public class FlashLight
 		{
 			try
 			{
+				FlashLight.this.holder = holder;
 				if(isSupport() && holder != null)
 				{
-					Log.d(FLASH_TAG, "surface created");
 					holder.setFixedSize(0, 0);
 					camera.setPreviewDisplay(holder);
+					Log.d(FLASH_TAG, "surface created");
 				}
 			}
 			catch(IOException e)
@@ -137,7 +135,6 @@ public class FlashLight
 			if(isSupport())
 			{
 				Log.d(FLASH_TAG, "surface destroyed");
-				camera.stopPreview();
 			}
 		}
 	}
