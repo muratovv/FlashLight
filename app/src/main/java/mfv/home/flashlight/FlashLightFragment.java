@@ -1,14 +1,12 @@
 package mfv.home.flashlight;
 
-import android.app.Fragment;
 import android.view.SurfaceHolder;
 
 /**
  * Created by mfv on 14.07.15.
  */
-public class FlashLightFragment extends Fragment
+public class FlashLightFragment extends android.support.v4.app.Fragment
 {
-	private static FlashLightFragment instance = null;
 	FlashLight flashLight;
 	SurfaceHolder holder;
 
@@ -17,12 +15,6 @@ public class FlashLightFragment extends Fragment
 		setRetainInstance(true);
 	}
 
-	public static FlashLightFragment getInstance()
-	{
-		if(instance == null)
-			instance = new FlashLightFragment();
-		return instance;
-	}
 
 	public FlashLight getFlashLight()
 	{

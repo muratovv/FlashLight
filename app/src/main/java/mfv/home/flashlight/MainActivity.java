@@ -12,6 +12,8 @@ import android.widget.TextView;
 public class MainActivity extends AppCompatActivity
 {
 
+	private static final String flashlightFragmentTag = "flashlightFragment";
+
 	private boolean isOn;
 
 	private TextView statusView;
@@ -37,7 +39,18 @@ public class MainActivity extends AppCompatActivity
 		});
 		SurfaceView preview = ((SurfaceView) findViewById(R.id.surface));
 
-		flashLightFragment = FlashLightFragment.getInstance();
+		if(savedInstanceState == null || getSupportFragmentManager()
+				.findFragmentByTag(flashlightFragmentTag) == null)
+		{
+			getSupportFragmentManager()
+					.beginTransaction()
+					.add(new FlashLightFragment(), flashlightFragmentTag)
+					.commit();
+			getSupportFragmentManager().executePendingTransactions();
+		}
+
+		flashLightFragment = ((FlashLightFragment) getSupportFragmentManager()
+				.findFragmentByTag(flashlightFragmentTag));
 		flashLightFragment.setHolder(preview.getHolder());
 
 	}
