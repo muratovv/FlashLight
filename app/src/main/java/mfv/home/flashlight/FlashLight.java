@@ -59,6 +59,16 @@ public class FlashLight
 		}
 	}
 
+	public void setNewSurfaceHolder(SurfaceHolder holder)
+	{
+		if(camera != null)
+		{
+			releaseCamera();
+			this.holder = holder;
+			openCamera();
+		}
+	}
+
 	public void releaseCamera()
 	{
 		try

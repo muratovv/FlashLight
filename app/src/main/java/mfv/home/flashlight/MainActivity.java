@@ -1,22 +1,21 @@
 package mfv.home.flashlight;
 
-import android.app.Activity;
 import android.media.MediaPlayer;
 import android.os.Bundle;
+import android.support.v7.app.AppCompatActivity;
 import android.view.SurfaceView;
 import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
 
 
-public class MainActivity extends Activity
+public class MainActivity extends AppCompatActivity
 {
 
 	private boolean isOn;
 
 	private TextView statusView;
-	private FlashLight flashLight;
-	private SurfaceView preview;
+	private FlashLightFragment flashLightFragment;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState)
@@ -36,8 +35,11 @@ public class MainActivity extends Activity
 				turnNext();
 			}
 		});
-		preview = ((SurfaceView) findViewById(R.id.surface));
-		flashLight = new FlashLight(preview.getHolder());
+		SurfaceView preview = ((SurfaceView) findViewById(R.id.surface));
+
+		flashLightFragment = FlashLightFragment.getInstance();
+		flashLightFragment.setHolder(preview.getHolder());
+
 	}
 
 
@@ -52,9 +54,9 @@ public class MainActivity extends Activity
 	{
 		super.onPause();
 		statusView.setText("");
-		if(flashLight != null && !flashLight.isUsed())
+		if(!flashLightFragment.getFlashLight().isUsed())
 		{
-			flashLight.releaseCamera();
+			flashLightFragment.getFlashLight().releaseCamera();
 		}
 	}
 
@@ -62,7 +64,7 @@ public class MainActivity extends Activity
 	protected void onResume()
 	{
 		super.onResume();
-		flashLight.openCamera();
+		flashLightFragment.getFlashLight().openCamera();
 	}
 
 	private void playSound(int rawId)
@@ -73,23 +75,22 @@ public class MainActivity extends Activity
 
 	private void turnNext()
 	{
-		if(flashLight != null)
-			if(flashLight.isSupport())
+		if(flashLightFragment.getFlashLight().isSupport())
+		{
+			if(isOn)
 			{
-				if(isOn)
-				{
-					statusView.setText("Flash turnNext off");
-					flashLight.turnOff();
-					playSound(R.raw.turn_on);
-					isOn = false;
-				}
-				else
-				{
-					statusView.setText("Flash turnNext on");
-					flashLight.turnOn();
-					playSound(R.raw.turn_off);
-					isOn = true;
-				}
+				statusView.setText("Flash turnNext off");
+				flashLightFragment.getFlashLight().turnOff();
+				playSound(R.raw.turn_on);
+				isOn = false;
 			}
+			else
+			{
+				statusView.setText("Flash turnNext on");
+				flashLightFragment.getFlashLight().turnOn();
+				playSound(R.raw.turn_off);
+				isOn = true;
+			}
+		}
 	}
 }
