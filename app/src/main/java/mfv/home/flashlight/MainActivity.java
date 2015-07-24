@@ -93,15 +93,15 @@ public class MainActivity extends AppCompatActivity
 			if(isOn)
 			{
 				statusView.setText("Flash turnNext off");
-				flashLightFragment.getFlashLight().turnOff();
 				playSound(R.raw.turn_on);
+				flashLightFragment.getFlashLight().turnOff();
 				isOn = false;
 			}
 			else
 			{
 				statusView.setText("Flash turnNext on");
-				flashLightFragment.getFlashLight().turnOn();
 				playSound(R.raw.turn_off);
+				flashLightFragment.getFlashLight().turnOn();
 				isOn = true;
 			}
 		}

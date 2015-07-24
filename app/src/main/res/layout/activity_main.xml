@@ -15,17 +15,55 @@
         android:layout_height="wrap_content"
         />
 
-    <Button
-        android:id="@+id/turnButton"
+    <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="@string/turn"
-        />
+        android:layout_height="match_parent"
+        android:baselineAligned="false">
 
 
-    <SurfaceView
-        android:id="@+id/surface"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"/>
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_weight="2"
+            android:orientation="vertical">
+
+            <ToggleButton
+                android:id="@+id/turnSound"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:checked="true"
+                android:text="@string/main.preference.sound"
+                />
+
+            <ToggleButton
+                android:id="@+id/turnHiddenMode"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:checked="true"/>
+
+            <SurfaceView
+                android:id="@+id/surface"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"/>
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:orientation="vertical">
+
+            <ToggleButton
+                android:id="@+id/turnButton"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:textOff="@string/flashlight.activation.off"
+                android:textOn="@string/flashlight.activation.on"
+                />
+        </LinearLayout>
+
+    </LinearLayout>
+
 
 </LinearLayout>

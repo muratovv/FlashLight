@@ -6,7 +6,6 @@ import android.view.SurfaceHolder;
 
 import java.io.IOException;
 
-import mfv.home.flashlight.Exceptions.CameraBusyException;
 
 
 public class FlashLight
@@ -22,7 +21,7 @@ public class FlashLight
 	private SurfaceHolder holder;
 	private HolderHelper holderHelper;
 
-	public FlashLight(SurfaceHolder holder) throws CameraBusyException
+	public FlashLight(SurfaceHolder holder)
 	{
 		this.holder = holder;
 	}
