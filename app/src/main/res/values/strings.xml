@@ -5,4 +5,5 @@
     <string name="main.preference.sound">Sound</string>
     <string name="flashlight.activation.off">Off</string>
     <string name="flashlight.activation.on">On</string>
+    <string name="main.flashlight.button">Push</string>
 </resources>

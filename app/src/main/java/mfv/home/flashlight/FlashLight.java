@@ -88,26 +88,38 @@ public class FlashLight
 
 	public void turnOn()
 	{
-		if(isSupport())
-		{
-			parameters.setFlashMode(Camera.Parameters.FLASH_MODE_TORCH);
-			camera.setParameters(parameters);
-			camera.startPreview();
-			isUsed = true;
-			Log.d(FLASH_TAG, "turn on");
-		}
+		new Thread(new Runnable() {
+			@Override
+			public void run()
+			{
+				if(isSupport())
+				{
+					parameters.setFlashMode(Camera.Parameters.FLASH_MODE_TORCH);
+					camera.setParameters(parameters);
+					camera.startPreview();
+					isUsed = true;
+					Log.d(FLASH_TAG, "turn on");
+				}
+			}
+		}).start();
 	}
 
 	public void turnOff()
 	{
-		if(isSupport())
-		{
-			parameters.setFlashMode(Camera.Parameters.FLASH_MODE_OFF);
-			camera.setParameters(parameters);
-			camera.stopPreview();
-			isUsed = false;
-			Log.d(FLASH_TAG, "turn off");
-		}
+		new Thread(new Runnable() {
+			@Override
+			public void run()
+			{
+				if(isSupport())
+				{
+					parameters.setFlashMode(Camera.Parameters.FLASH_MODE_OFF);
+					camera.setParameters(parameters);
+					camera.stopPreview();
+					isUsed = false;
+					Log.d(FLASH_TAG, "turn off");
+				}
+			}
+		}).start();
 	}
 
 
